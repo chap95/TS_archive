@@ -59,3 +59,15 @@ import { Component } from "@angular/core";
 비상대적 imports 는 `baseUrl` 또는 `path mapping` 에 따라서 해결이 된다. 또한 `ambient module declaration` 으로도 해결이 된다.
 
 이 방법은 외부 패키지를 import 할 때 사용이 된다.
+
+---
+
+### module resolution 방법
+
+위에서 언급했던 두 가지 방법에 대해서 알아보자.
+두 가지 방법 중 `--moduleResolution` 플래그 값으로 한 가지 방법을 특정할 수 있으며 `--module commonjs` 에서는 default 는 `Node` 이다. 반면에 설정을 하면 `Classic` 방법이 특정이 된다.
+Classic 방법은 `--module` 이 `amd, system, umd, es2015, esnext` 등의 값으로 설정된 경우를 포함한다.
+
+> `Node` 방식은 대부분의 타입스크립트 커뮤니티에서 사용되는 방법이며 대부분의 프로젝트에서 추천되는 방식이다. 그러므로 module resolution 관련 문제가 발생하면 `moduleResolution: "node"` 로 설정하여 해결하면 된다.
+
+##### Classic
