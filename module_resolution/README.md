@@ -100,3 +100,33 @@ import { Component } from "@angular/core";
 ---
 
 ##### Node
+
+이 방법이 Node 라고 이름이 붙은 이유는 Node 에서 module resolution 하는 방법을 흉내내기 떄문이다. 그렇다면 이 방법을 이해하기 위해서 node에서 어떻게 module resolution 하는지 알아봐야한다.
+
+1. node에서 module resolution 하는 방법
+
+node에서는 `import` 라는 구문을 사용하기 전에는 `require` 라는 키워드를 통해서 모듈을 불러왔다.
+
+require 키워드는 상대적이냐 비상대적이냐에 따라서 다르게 동작을한다.
+
+- 상대적인 경우
+  상대적인 경우의 방법을 알아보자.
+  예를 들어서 `/root/src/moduleA.js` 파일에서 `var x = require("./moduleB");` 라는 코드로 moduleB에 대해서 import 한다고 가정했을때 다음과 같은 방식으로 Node.js 는 module을 찾는다.
+
+```
+1. /root/src/moduleB.js 가 존재하는지 찾는다.
+
+2. /root/src/moduleB 라는 폴더에 main 모듈이 특정이 되어있는
+package.json 파일이 있는지 찾는다.
+위 예시에서는 /root/src.moduleB/package.json 에서
+{ "main": "lib/mainModule.js" } 를 포함하고 있는지 찾은 후 포함하고 있다면
+Node.js는 /root/src/moduleB/lib/mainModule.js 를 참조한다.
+
+3. /root/src/moduleB 가 index.js 를 포함하고 있는지 찾는다.
+index.js 라는 파일은 암묵적으로 main 모듈이라고 간주된다.
+```
+
+- 비상대적인 경우
+  반면 비상대적인 경우에는 `node_modules` 라는 폴더를 만들어 그 폴더 안에 모듈을 정의하고 사용한다. 이 폴더는 import 하는 파일과 동일한 위치에 존재하거나 상위 위치에 존재하기 때문에 Node.js 는 디렉토리 트리를 따라 올라가면서 `node_modules` 라는 폴더를 찾게된다.
+  <br />
+  상대적인 경우와 같은 예시로 비교해보자.
