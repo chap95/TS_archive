@@ -130,3 +130,45 @@ index.js 라는 파일은 암묵적으로 main 모듈이라고 간주된다.
   반면 비상대적인 경우에는 `node_modules` 라는 폴더를 만들어 그 폴더 안에 모듈을 정의하고 사용한다. 이 폴더는 import 하는 파일과 동일한 위치에 존재하거나 상위 위치에 존재하기 때문에 Node.js 는 디렉토리 트리를 따라 올라가면서 `node_modules` 라는 폴더를 찾게된다.
   <br />
   상대적인 경우와 같은 예시로 비교해보자.
+
+만약 `/root/src/moduleA.js` 파일에서 `x = require("moduleB")` 를 import 한다고 가정했을 때, 다음과 같은 위치에서 `mobuleB`를 찾는다.
+
+```
+1. /root/src/node_modules/moduleB.js
+2. /root/src/node_modules/moduleB/package.json (main 속성이 있을 때)
+3. /root/src/node_modules/moduleB/index.js
+
+4. /root/node_modules/moduleB.js
+5. /root/node_modules/moduleB/package.json (main 속성이 있을 때)
+6. /root/node_modules/moduleB/index.js
+
+7. /node_modules/moduleB.js
+8. /node_modules/moduleB/packages.json (main 속성이 있을 때)
+9. /node_modules/moduleB/index.js
+```
+
+> Node.js 는 4 ~ 7 번 과정을 진행하지 않음을 명시하자.
+
+---
+
+위에서 Classic 방식과 node 방식이 어떻게 module resolution 을 하는지 알아보았다. 그렇다면 TypeScript 에서는 어떻게 module resolution을 할까?
+
+### TypeScript module resolution
+
+타입스크립트의 module resolution은 컴파일 할 때 모듈을 찾는 것이 아니라 node js의 실행 시간 module resolution 방법을 따라한다.
+
+이 방법을 따라하기 위해 타입스크립트는 TS 소스 파일`(.ts, .tsx, .d.ts)`을 Node가 모듈을 찾는 로직에 덮어쓴다.(js 파일을 찾는 대신 ts 파일을 찾는 거 같음) 그리고 package.json main 과 동일한 목적을 가진 `types` 라는 속성을 사용한다. (컴파일러는 이 types 속성을 이용하여 main 을 찾아낸다.)
+
+다음 예시를 보자.
+`import { b } from "./moduleB"` 를 `/root/src/moduleA.ts` 파일에서 실행되면 아래의 위치에서 `moduleB` 를 찾게된다.
+
+```
+1. /root/src/moduleB.ts
+2. /root/src/moduleB.tsx
+3. /root/src/moduleB.d.ts
+4. /root/src/moduleB/package.json (types 라는 속성을 정의할 수 있을 시)
+5. /root/src/moduleB/index.ts
+6. /root/src/moduleB/index.tsx
+7. /root/src/moduleB/index.d.ts
+
+```
