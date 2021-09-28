@@ -159,6 +159,8 @@ index.js 라는 파일은 암묵적으로 main 모듈이라고 간주된다.
 
 이 방법을 따라하기 위해 타입스크립트는 TS 소스 파일`(.ts, .tsx, .d.ts)`을 Node가 모듈을 찾는 로직에 덮어쓴다.(js 파일을 찾는 대신 ts 파일을 찾는 거 같음) 그리고 package.json main 과 동일한 목적을 가진 `types` 라는 속성을 사용한다. (컴파일러는 이 types 속성을 이용하여 main 을 찾아낸다.)
 
+##### Relative
+
 다음 예시를 보자.
 `import { b } from "./moduleB"` 를 `/root/src/moduleA.ts` 파일에서 실행되면 아래의 위치에서 `moduleB` 를 찾게된다.
 
@@ -172,3 +174,42 @@ index.js 라는 파일은 암묵적으로 main 모듈이라고 간주된다.
 7. /root/src/moduleB/index.d.ts
 
 ```
+
+Node.js 가 ModuleB.js 라는 이름의 파일을 찾은 후 적용할 수 있는 package.json 을 찾은 다음 index.js 에 적용한다.
+
+##### Non-Relative
+
+비상대적인 경우도 위와 동일하게 폴더 디렉토리 트리를 타고 올라가면서 module을 찾는다. 하지만 위와 차이점이 있다고 하면 `node_modules/@types` 폴더가 추가된다는 점이다. 아래 과정을 따라서 모듈을 찾는다.
+
+```
+package.json 은 types 속성을 특정할 수 있는 경우만 찾는다.
+1. /root/src/node_modules/moduleB.ts
+2. /root/src/node_modules/moduleB.tsx
+3. /root/src/node_modules/moduleB.d.ts
+4. /root/src/node_modules/moduleB/package.json
+5. /root/src/node_modules/@types/moduleB.d.ts
+6. /root/src/node_modules/moduleB/index.ts
+7. /root/src/node_modules/moduleB/index.tsx
+8. /root/src/node_modules/moduleB/index.d.ts
+
+9. /root/node_modules/moduleB.ts
+10. /root/node_modules/moduleB.tsx
+11. /root/node_modules/moduleB.d.ts
+12. /root/node_modules/moduleB/package.json
+13. /root/node_modules/@types/moduleB.d.ts
+14. /root/node_modules/moduleB/index.ts
+15. /root/node_modules/moduleB/index.tsx
+16. /root/node_modules/moduleB/index.d.ts
+
+17. /node_modules/moduleB.ts
+18. /node_modules/moduleB.tsx
+19. /node_modules/moduleB.d.ts
+20. /node_modules/moduleB/package.json
+21. /node_modules/@types/moduleB.d.ts
+22. /node_modules/moduleB/index.ts
+23. /node_modules/moduleB/index.tsx
+24. /node_modules/moduleB/index.d.ts
+
+```
+
+24 단계에 걸쳐서 module을 찾는 거 같지만 TypeScript 는 9번과 17번 단계를 건너 뛴다.
